@@ -15,4 +15,14 @@ class Product extends Model
      * @var array
      */
     protected $guarded = [];
+
+    /**
+     * The ingredients that belong to the Product
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function ingredients()
+    {
+        return $this->belongsToMany(Ingredient::class, 'ingredient_product')->withPivot('quantity');
+    }
 }

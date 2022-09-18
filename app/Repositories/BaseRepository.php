@@ -13,10 +13,7 @@ class BaseRepository implements BaseRepositoryInterface
      *
      * @param Model $model
      */
-    public function __construct(Model $model)
-    {
-        $this->model = $model;
-    }
+    public function __construct(Model $model) {}
 
     /**
      * @param array $columns

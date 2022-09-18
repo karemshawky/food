@@ -15,9 +15,15 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        Product::factory()->create([
+        $burger = Product::factory()->create([
             'name' => 'Burger',
             'description' => 'beef-burger'
+        ]);
+
+        $burger->ingredients()->attach([
+            1 => ['quantity' => 150],
+            2 => ['quantity' => 30],
+            3 => ['quantity' => 20]
         ]);
     }
 }

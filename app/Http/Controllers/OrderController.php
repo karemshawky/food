@@ -2,21 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\OrderRequest;
-use App\Repositories\OrderRepository;
 
 class OrderController extends Controller
 {
-    public function __construct(
-        OrderRepository $orderRepository
-    ) {
-        $this->orderRepository = $orderRepository;
-    }
+    public function __construct(protected OrderService $orderService) {}
 
     public function store(OrderRequest $request): JsonResponse
     {
-        $this->orderRepository->create($request->toArray());
+        $this->orderService->createOrder($request->toArray());
 
         return response()->json(['message' => 'Created Successfully'], JsonResponse::HTTP_CREATED);
     }
