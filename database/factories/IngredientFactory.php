@@ -18,7 +18,7 @@ class IngredientFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'used_stock' => $this->faker->randomNumber(5, false),
+            'used_stock' => $this->faker->randomNumber(4, false),
             'main_stock' => $this->faker->randomNumber(5, false),
         ];
     }

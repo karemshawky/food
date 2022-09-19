@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name')->default('text');
             $table->integer('used_stock');
             $table->integer('main_stock');
+            $table->boolean('low_stock')->default(false);
             $table->timestamps();
         });
     }

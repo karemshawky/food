@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use App\Mail\NotifyLowStockEmail;
+use Illuminate\Support\Facades\Mail;
 use App\Repositories\ProductRepository;
 use App\Repositories\IngredientRepository;
 
 class IngredientService
 {
     /**
-     * IngredientRepository constructor.
+     * Ingredient Repository constructor.
      *
      * @param \App\Repositories\IngredientRepository $ingredientRepository
      * @param \App\Repositories\ProductRepository $productRepository
@@ -27,47 +29,49 @@ class IngredientService
      */
     public function updateStock(array $payload)
     {
-        $products = $this->productRepository->findById(modelId: $payload['product_id'], relations: ['ingredients']);
+        $product = $this->productRepository->findById(modelId: $payload['product_id'], relations: ['ingredients']);
 
-        return $this->calculateNewQuantity($products, $payload);
+        return $this->calculateNewStock($product, $payload);
     }
 
     /**
-     * Update quantity
+     * Calculate the new ingredient stock.
      *
-     * @param object $products
+     * @param object $product
      * @param array $payload
      * @return void
      */
-    public function calculateNewQuantity($products, $payload)
+    public function calculateNewStock($product, $payload)
     {
-        $quantity = [];
+        foreach ($product->ingredients->toArray() as $ingredient) {
 
-        foreach ($products->ingredients->toArray() as $product) {
-            $newQuantity = $product['pivot']['quantity'] * $payload['quantity'];
-            $quantity[$product['id']] = $product['used_stock'] - $newQuantity;
+            // Calculate the new stock after the orders.
+            $orderQuantity = $ingredient['pivot']['quantity'] * $payload['quantity'];
+            $newStock = $ingredient['used_stock'] - $orderQuantity;
+
+            // Fresh the ingredient row with the new stock.
+            $this->ingredientRepository->update($ingredient['id'], ['used_stock' => (int) $newStock > 0 ? $newStock : 0]);
+
+            // Send email to notify user if ingredient stock is Low.
+            $this->notifyLowStock($ingredient);
         }
-        
-        return $this->updateQuantity($quantity, $product);
     }
 
     /**
-     * Undocumented function
+     * Send email to notify user if stock is Low.
      *
-     * @param [type] $quantity
+     * @param array $ingredient
      * @return void
      */
-    public function updateQuantity($quantity, $product)
+    public function notifyLowStock($ingredient)
     {
-        foreach ($quantity as $key => $value) {
-            $this->ingredientRepository->update($key, ['used_stock' => (int) $value > 0 ? $value : 0]);
-        }
+        $stockPercentage = $ingredient['used_stock'] / $ingredient['main_stock'] * 100;
 
-        $stockPercentage = $product['used_stock'] / $product['main_stock'] * 100;
+        if ($stockPercentage <= (float) 50 and $ingredient['low_stock'] == false) {
 
-        if ($stockPercentage <= (float) 50) {
-            dd('dffdgfdgfhgfhfhghgfgfh');
-            // Mail::to('john@example.com')->send(new TestEmail($data));
+            $this->ingredientRepository->update($ingredient['id'], ['low_stock' => true]);
+
+            // Mail::to('merchant@example.com')->send(new NotifyLowStockEmail($ingredient));
         }
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class UpdatedStockEmail extends Mailable
+class NotifyLowStockEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -28,11 +28,9 @@ class UpdatedStockEmail extends Mailable
      */
     public function build()
     {
-        return $this->view('view.name');
-
-        return $this->view('emails.test')
+        return $this->view('emails.update-stock')
             ->from('test@test.com', 'User Test')
-            ->subject('Ingredients stock level reaches 50%')
-            ->with(['message' => $this->data['message']]);
+            ->subject($this->data['name'] . ' stock level is reaches 50%')
+            ->with(['message' => $this->data['name']]);
     }
 }

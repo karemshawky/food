@@ -7,7 +7,7 @@
 
 <body>
     <h2> Updated stock email</h2>
-    <p>{{ $message }}</p>
+    <p> stock </p>
 </body>
 
 </html>
